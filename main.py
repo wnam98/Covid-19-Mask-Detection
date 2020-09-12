@@ -1,24 +1,39 @@
 from tkinter import *
+import cv2
+import numpy as np
 from tkmacosx import Button
 from ecapture import ecapture as ec
-from boar.running import run_notebook
+from playsound import playsound
+# from boar.running import run_notebook
 import time
-outputs = run_notebook("image_detection.ipynb")
+
+
+def image_analysis(path_to_image):
+    img = cv2.imread(path_to_image)
+    height, width, depth = img.shape
+    circle_img = np.zeros((height, width), np.uint8)
+    mask = cv2.circle(circle_img, (int(width / 2), int(height / 2)), 1, 1, thickness=-1)
+    masked_img = cv2.bitwise_and(img, img, mask=circle_img)
+    circle_locations = mask == 1
+    bgr = img[circle_locations]
+    rgb = bgr[..., ::-1]
+    return rgb[0][0]
 
 
 def clicked():
     while True:
         ec.capture(0, False, 'image.jpg')
-        print('image taken')
+        if image_analysis('image.jpg') > 72:
+            break
         time.sleep(2)
+    warning.config(fg='black', bg='red', text='Non-masked customer detected')
+    mp3file = input("alarm.mp3")
+    playsound(mp3file)
 
 
 window = Tk()
 window.title("COVID Guard")
 window.geometry('500x500')
-
-font_color = 'black'
-background_color = 'white'
 
 btn = Button(
     window,
@@ -27,10 +42,15 @@ btn = Button(
     fg='Black',
     borderless=1,
     font=("roboto", 20),
-    command=clicked
+    command=clicked,
 )
-warning = Label(window, text='safe', fg=font_color, bg=background_color, height=40, width=20)
+warning = Label(
+    window,
+    fg='spring green', bg='forest green', text='All Customers are Masked',
+    height=40,
+    width=100
+)
 
-btn.pack()
+btn.pack(fill='both')
 warning.pack()
 window.mainloop()
