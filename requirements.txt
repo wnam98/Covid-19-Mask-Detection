@@ -1,0 +1,8 @@
+tkmacosx~=0.1.4
+ecapture~=0.1.8
+boar~=0.0.1
+tensorflow~=2.3.0
+keras~=2.4.3
+sklearn~=0.0
+imutils~=0.5.3
+google-colab~=1.0.0
