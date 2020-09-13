@@ -9,3 +9,6 @@ google-colab~=1.0.0
 opencv-python~=4.4.0.42
 numpy~=1.19.2
 playsound~=1.2.2
+matplotlib~=3.3.1
+scipy~=1.5.2
+scikit-learn~=0.23.2

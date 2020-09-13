@@ -3,12 +3,11 @@ import cv2
 import numpy as np
 from tkmacosx import Button
 from ecapture import ecapture as ec
-from playsound import playsound
-# from boar.running import run_notebook
 import time
 
 
 def image_analysis(path_to_image):
+
     img = cv2.imread(path_to_image)
     height, width, depth = img.shape
     circle_img = np.zeros((height, width), np.uint8)
@@ -27,8 +26,6 @@ def clicked():
             break
         time.sleep(2)
     warning.config(fg='black', bg='red', text='Non-masked customer detected')
-    mp3file = input("alarm.mp3")
-    playsound(mp3file)
 
 
 window = Tk()
