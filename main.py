@@ -1,28 +1,37 @@
 from tkinter import *
-import cv2
 import numpy as np
 from tkmacosx import Button
 from ecapture import ecapture as ec
 import time
+import tensorflow as tf
+from tensorflow import keras
+
+new_model = tf.keras.models.load_model('mask_detector.model')
+class_names = ['mask', 'no_mask']
 
 
-def image_analysis(path_to_image):
+def image_analysis():
+    image_path = 'image.jpg'
+    img = keras.preprocessing.image.load_img(
+        image_path, target_size=(224, 224)
+    )
+    img_array = keras.preprocessing.image.img_to_array(img)
+    img_array = tf.expand_dims(img_array, 0)  # Create a batch
 
-    img = cv2.imread(path_to_image)
-    height, width, depth = img.shape
-    circle_img = np.zeros((height, width), np.uint8)
-    mask = cv2.circle(circle_img, (int(width / 2), int(height / 2)), 1, 1, thickness=-1)
-    masked_img = cv2.bitwise_and(img, img, mask=circle_img)
-    circle_locations = mask == 1
-    bgr = img[circle_locations]
-    rgb = bgr[..., ::-1]
-    return rgb[0][0]
+    predictions = new_model.predict(img_array)
+    score = tf.nn.softmax(predictions[0])
+
+    print(
+        "This image most likely belongs to {} with a {:.2f} percent confidence."
+            .format(class_names[np.argmax(score)], 100 * np.max(score))
+    )
+    return 100 * np.max(score) > 50
 
 
 def clicked():
     while True:
         ec.capture(0, False, 'image.jpg')
-        if image_analysis('image.jpg') > 72:
+        if image_analysis():
             break
         time.sleep(2)
     warning.config(fg='black', bg='red', text='Non-masked customer detected')
